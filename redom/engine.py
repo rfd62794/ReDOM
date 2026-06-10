@@ -94,15 +94,19 @@ def _coerce_value(value: str, kind: str) -> str:
 def _element_matches_selector(element, selector: str) -> bool:
     """Check if a BeautifulSoup element matches a CSS selector.
     
-    Supports: element names ("h2"), class selectors (".transaction")
+    Supports: element names ("h2"), class selectors (".transaction" or ".flex.flex-row"),
+    and multi-class Tailwind-style selectors (".flex.flex-row.gap-4")
     """
     if not selector:
         return False
     
-    # Class selector (.class)
+    # Class selector (.class or .class1.class2.class3 for Tailwind)
     if selector.startswith('.'):
-        class_name = selector[1:]
-        return class_name in element.get('class', [])
+        # Split by dots and filter empty strings (first dot creates empty)
+        required_classes = [c for c in selector.split('.') if c]
+        element_classes = element.get('class', [])
+        # All required classes must be present
+        return all(cls in element_classes for cls in required_classes)
     
     # ID selector (#id) - not commonly used but handle it
     if selector.startswith('#'):
