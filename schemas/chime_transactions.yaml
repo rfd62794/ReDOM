@@ -4,13 +4,13 @@ anchors:
   - selector: "h2"
     role: date_header
     resolve: relative_date
-record_selector: ".flex.flex-row.gap-4"
+record_selector: ".flex.flex-row"
 inherits: date_header
 fields:
   - name: description
-    selector: ".min-w-0 span"
+    selector: ".flex.flex-row.gap-4 .flex.flex-col div:first-child"
     kind: string
   - name: amount
-    selector: ".text-content-secondary, .text-content-action-primary"
+    selector: ".flex.flex-col.shrink-0"
     kind: currency
 on_unresolved: flag
