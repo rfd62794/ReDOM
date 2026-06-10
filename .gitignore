@@ -38,8 +38,13 @@ htmlcov/
 env/
 venv/
 
+# Build artifacts
+*.egg-info/
+build/
+dist/
+
 # OS
 .DS_Store
 Thumbs.db
 
-/samples
+/samples/*
