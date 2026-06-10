@@ -10,7 +10,7 @@
 | **Chime Schema** | ✅ **CERTIFIED** | Real selectors from structure report (`.flex.flex-row.gap-4`, Tailwind classes) validated against real Chime DOM |
 | **Chime Fixture** | ✅ **REAL** | Sanitized from `samples/Chime/Chime _ Accounts_Spending.html` (48,388 bytes, protected by .gitignore) |
 | Purity verified | ✅ | Year injected from `reference_date` (line 58), no `datetime.now()`, no I/O |
-| Test floor | ✅ 8/0/0 | All 8 passing, 0 failed, 0 skipped — raw output verified on real fixture |
+| Test floor | ✅ **9/0/0** | 9 tests passing (8 original + 1 tag+class selector test), 0 failed, 0 skipped |
 | UV toolchain | ✅ | `.python-version` 3.12.10, `uv.lock` committed, reproducible floor |
 
 ## Phase 1 Complete
@@ -18,9 +18,11 @@
 The original directive (§4) required: "One real Chime page saved, sanitized, committed as `tests/fixtures/chime_sample.html`."
 
 **What was delivered:** 
-- Real Chime page captured from bank login, sanitized via `scripts/sanitize_chime.py`
+- Real Chime page captured June 10, 2026, sanitized via `scripts/sanitize_chime.py`
 - Structure report revealed Tailwind utility classes (not semantic selectors)
 - Schema updated with real selectors: `a.group.flex.flex-col` (transaction rows), `.text-label` (amounts)
+- **reference_date corrected to 2026-06-10** to match capture date (Yesterday → June 9)
+- **Engine fix:** tag+class selector parsing (`a.group.flex.flex-col`) with dedicated test
 - **9 real transactions** extracted, **3 orphan records** flagged unresolved, **6 with date reattachment**
 - Engine certified against real hostile UI — not synthetic data
 
@@ -28,20 +30,21 @@ The original directive (§4) required: "One real Chime page saved, sanitized, co
 
 ## Test Floor
 
-Target: **8 passing, 0 failing, 0 skipped**
+Target: **9 passing, 0 failing, 0 skipped**
 
 | # | Test | Target | Status |
 |---|------|--------|--------|
 | 1 | `test_schema_loads_valid` | schema.py | ✅ **PASSED** |
 | 2 | `test_schema_rejects_unknown_kind` | schema.py | ✅ **PASSED** |
 | 3 | `test_schema_rejects_unknown_resolve` | schema.py | ✅ **PASSED** |
-| 4 | `test_extract_reattaches_date_to_records` | engine.py | ✅ **PASSED** |
-| 5 | `test_relative_date_resolves_against_reference` | engine.py | ✅ **PASSED** |
-| 6 | `test_absolute_header_parses_to_iso` | engine.py | ✅ **PASSED** |
-| 7 | `test_unresolved_header_flags_record` | engine.py | ✅ **PASSED** |
-| 8 | `test_extract_is_pure` | engine.py | ✅ **PASSED** |
+| 4 | `test_tag_plus_class_selector_parses_correctly` | engine.py | ✅ **PASSED** |
+| 5 | `test_extract_reattaches_date_to_records` | engine.py | ✅ **PASSED** |
+| 6 | `test_relative_date_resolves_against_reference` | engine.py | ✅ **PASSED** |
+| 7 | `test_absolute_header_parses_to_iso` | engine.py | ✅ **PASSED** |
+| 8 | `test_unresolved_header_flags_record` | engine.py | ✅ **PASSED** |
+| 9 | `test_extract_is_pure` | engine.py | ✅ **PASSED** |
 
-**Result: 8/0/0 — FLOOR ACHIEVED**
+**Result: 9/0/0 — FLOOR ACHIEVED**
 
 ## Implementation Summary
 
