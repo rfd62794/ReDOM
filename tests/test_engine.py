@@ -38,7 +38,7 @@ class TestSchemaLoading:
         assert schema.record_selector == "a.group.flex.flex-col"
         assert schema.inherits == "date_header"
         assert schema.on_unresolved == "flag"
-        assert schema.reference_date == "2026-06-09"
+        assert schema.reference_date == "2026-06-10"
 
     def test_schema_rejects_unknown_kind(self):
         """Unknown kind raises SchemaError."""
@@ -82,7 +82,40 @@ on_unresolved: flag
         assert "relative_date" in str(exc_info.value)
 
 
-# Test 4-8: Engine behavior
+# Test 4: Engine selector parsing
+class TestSelectorParsing:
+    def test_tag_plus_class_selector_parses_correctly(self):
+        """Selector 'a.group.flex.flex-col' parses to tag 'a' + classes ['group', 'flex', 'flex-col']."""
+        from redom.engine import _element_matches_selector
+        from bs4 import BeautifulSoup
+        
+        # Create test HTML with matching and non-matching elements
+        html = '''
+        <a class="group flex flex-col">Match</a>
+        <a class="group flex">Partial</a>
+        <div class="group flex flex-col">Wrong tag</div>
+        <span class="group flex flex-col">Also wrong tag</span>
+        '''
+        soup = BeautifulSoup(html, 'html.parser')
+        
+        # Should match the anchor with all three classes
+        match = soup.find(string="Match").parent
+        assert _element_matches_selector(match, "a.group.flex.flex-col") is True
+        
+        # Should NOT match partial class match
+        partial = soup.find(string="Partial").parent
+        assert _element_matches_selector(partial, "a.group.flex.flex-col") is False
+        
+        # Should NOT match wrong tag
+        wrong_tag = soup.find(string="Wrong tag").parent
+        assert _element_matches_selector(wrong_tag, "a.group.flex.flex-col") is False
+        
+        # Should NOT match different tag
+        also_wrong = soup.find(string="Also wrong tag").parent
+        assert _element_matches_selector(also_wrong, "a.group.flex.flex-col") is False
+
+
+# Test 5-8: Engine behavior with real fixture
 class TestEngine:
     def test_extract_reattaches_date_to_records(self, schema, html):
         """Each record's context["date_header"] matches the header it sat under."""
@@ -114,8 +147,8 @@ class TestEngine:
         """"Yesterday" resolves to reference_date − 1, ISO format."""
         records = extract(schema, html)
         
-        # Find records with Yesterday-derived date (2026-06-08 from ref_date 2026-06-09)
-        yesterday_records = [r for r in records if r.context.get("date_header") == "2026-06-08"]
+        # Find records with Yesterday-derived date (2026-06-09 from ref_date 2026-06-10)
+        yesterday_records = [r for r in records if r.context.get("date_header") == "2026-06-09"]
         
         # Should have exactly 6 records under Yesterday (the dated transactions)
         assert len(yesterday_records) == 6, f"Expected 6 Yesterday records, got {len(yesterday_records)}"

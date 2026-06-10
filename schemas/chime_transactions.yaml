@@ -1,5 +1,5 @@
 source: chime_transactions
-reference_date: "2026-06-09"
+reference_date: "2026-06-10"
 anchors:
   - selector: "h2"
     role: date_header
