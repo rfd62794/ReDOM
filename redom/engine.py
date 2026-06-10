@@ -95,24 +95,32 @@ def _element_matches_selector(element, selector: str) -> bool:
     """Check if a BeautifulSoup element matches a CSS selector.
     
     Supports: element names ("h2"), class selectors (".transaction" or ".flex.flex-row"),
-    and multi-class Tailwind-style selectors (".flex.flex-row.gap-4")
+    tag+class combos ("a.group.flex"), and multi-class Tailwind-style selectors.
     """
     if not selector:
         return False
     
-    # Class selector (.class or .class1.class2.class3 for Tailwind)
-    if selector.startswith('.'):
-        # Split by dots and filter empty strings (first dot creates empty)
-        required_classes = [c for c in selector.split('.') if c]
-        element_classes = element.get('class', [])
-        # All required classes must be present
-        return all(cls in element_classes for cls in required_classes)
-    
-    # ID selector (#id) - not commonly used but handle it
+    # ID selector (#id)
     if selector.startswith('#'):
         return element.get('id') == selector[1:]
     
-    # Element name (h2, div, etc.)
+    # Parse selector: could be "tag.class1.class2" or ".class1.class2"
+    if '.' in selector:
+        parts = selector.split('.')
+        # First part is tag name if not empty, otherwise any tag
+        required_tag = parts[0] if parts[0] else None
+        # Remaining parts are classes
+        required_classes = [p for p in parts[1:] if p]
+        
+        # Check tag if specified
+        if required_tag and element.name != required_tag:
+            return False
+        
+        # Check all required classes present
+        element_classes = element.get('class', [])
+        return all(cls in element_classes for cls in required_classes)
+    
+    # Just element name (h2, div, etc.)
     return element.name == selector
 
 
