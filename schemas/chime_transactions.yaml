@@ -1,0 +1,16 @@
+source: chime_transactions
+reference_date: "2026-04-10"
+anchors:
+  - selector: "h2"
+    role: date_header
+    resolve: relative_date
+record_selector: ".transaction"
+inherits: date_header
+fields:
+  - name: description
+    selector: ".desc"
+    kind: string
+  - name: amount
+    selector: ".amount"
+    kind: currency
+on_unresolved: flag
