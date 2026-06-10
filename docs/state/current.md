@@ -20,7 +20,7 @@ The original directive (§4) required: "One real Chime page saved, sanitized, co
 **What was delivered:** 
 - Real Chime page captured from bank login, sanitized via `scripts/sanitize_chime.py`
 - Structure report revealed Tailwind utility classes (not semantic selectors)
-- Schema updated with real selectors: `.flex.flex-row.gap-4`, `.text-content-secondary`
+- Schema updated with real selectors: `a.group.flex.flex-col` (transaction rows), `.text-label` (amounts)
 - **9 real transactions** extracted, **3 orphan records** flagged unresolved, **6 with date reattachment**
 - Engine certified against real hostile UI — not synthetic data
 
