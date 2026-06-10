@@ -136,9 +136,9 @@ class TestEngine:
             assert amt.replace('.', '').replace('-', '').replace('+', '').isdigit(), \
                 f"Amount '{amt}' is not a dollar value"
         
-        # Records with date context have valid reattachment
+        # Records with date context have valid reattachment (3 from Yesterday + 3 from June 8th)
         dated_records = [r for r in records if not r.unresolved]
-        assert len(dated_records) >= 6, f"Expected >=6 dated records, got {len(dated_records)}"
+        assert len(dated_records) == 6, f"Expected 6 dated records, got {len(dated_records)}"
         for r in dated_records:
             assert "date_header" in r.context
             assert r.context["date_header"]  # Non-empty date
@@ -150,8 +150,8 @@ class TestEngine:
         # Find records with Yesterday-derived date (2026-06-09 from ref_date 2026-06-10)
         yesterday_records = [r for r in records if r.context.get("date_header") == "2026-06-09"]
         
-        # Should have exactly 6 records under Yesterday (the dated transactions)
-        assert len(yesterday_records) == 6, f"Expected 6 Yesterday records, got {len(yesterday_records)}"
+        # Should have exactly 3 records under Yesterday (and 3 under Monday, June 8th)
+        assert len(yesterday_records) == 3, f"Expected 3 Yesterday records, got {len(yesterday_records)}"
         for r in yesterday_records:
             assert not r.unresolved, "Yesterday records should be resolved"
 
@@ -172,7 +172,7 @@ class TestEngine:
         """A record with no resolvable preceding anchor → unresolved=True."""
         records = extract(schema, html)
         
-        # Exactly 3 records before first h2 (Available section) should be unresolved
+        # Exactly 3 records before first h2 (Available/Pending sections) should be unresolved
         unresolved_records = [r for r in records if r.unresolved]
         assert len(unresolved_records) == 3, f"Expected 3 unresolved records, got {len(unresolved_records)}"
         
