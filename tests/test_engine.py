@@ -35,7 +35,7 @@ class TestSchemaLoading:
         assert schema.anchors[0].selector == "h2"
         assert schema.anchors[0].role == "date_header"
         assert schema.anchors[0].resolve == "relative_date"
-        assert schema.record_selector == ".flex.flex-row"
+        assert schema.record_selector == "a.group.flex.flex-col"
         assert schema.inherits == "date_header"
         assert schema.on_unresolved == "flag"
         assert schema.reference_date == "2026-06-09"
@@ -88,70 +88,65 @@ class TestEngine:
         """Each record's context["date_header"] matches the header it sat under."""
         records = extract(schema, html)
         
-        # Filter to records with both description AND amount (actual transactions)
-        valid_records = [r for r in records if r.fields.get("description") and r.fields.get("amount")]
+        # Exactly 9 transactions (no duplicates, no noise)
+        assert len(records) == 9, f"Expected 9 records, got {len(records)}"
         
-        # Should have ~10 transaction records with both fields
-        assert len(valid_records) >= 6
+        # Every record must have description and amount fields
+        for r in records:
+            assert "description" in r.fields
+            assert "amount" in r.fields
         
-        # Verify amounts are actual dollar values, not date text
-        for r in valid_records:
+        # Amounts must be actual dollar values (coerced to numeric strings)
+        for r in records:
             amt = r.fields["amount"]
-            # Should be numeric (after currency coercion removes $ sign)
+            # After currency coercion: "-$99.99" -> "-99.99"
             assert amt.replace('.', '').replace('-', '').replace('+', '').isdigit(), \
                 f"Amount '{amt}' is not a dollar value"
         
-        # Records with date context should have valid reattachment
-        dated_records = [r for r in valid_records if not r.unresolved]
-        assert len(dated_records) >= 3
+        # Records with date context have valid reattachment
+        dated_records = [r for r in records if not r.unresolved]
+        assert len(dated_records) >= 6, f"Expected >=6 dated records, got {len(dated_records)}"
         for r in dated_records:
             assert "date_header" in r.context
+            assert r.context["date_header"]  # Non-empty date
 
     def test_relative_date_resolves_against_reference(self, schema, html):
         """"Yesterday" resolves to reference_date − 1, ISO format."""
         records = extract(schema, html)
         
-        # Filter to valid transaction records
-        valid_records = [r for r in records if r.fields.get("description") and r.fields.get("amount")]
-        
         # Find records with Yesterday-derived date (2026-06-08 from ref_date 2026-06-09)
-        yesterday_records = [r for r in valid_records if r.context.get("date_header") == "2026-06-08"]
+        yesterday_records = [r for r in records if r.context.get("date_header") == "2026-06-08"]
         
-        # Should have multiple records under Yesterday
-        assert len(yesterday_records) >= 3
+        # Should have exactly 6 records under Yesterday (the dated transactions)
+        assert len(yesterday_records) == 6, f"Expected 6 Yesterday records, got {len(yesterday_records)}"
         for r in yesterday_records:
-            assert not r.unresolved
+            assert not r.unresolved, "Yesterday records should be resolved"
 
     def test_absolute_header_parses_to_iso(self, schema, html):
         """Absolute date headers parse to ISO format."""
         records = extract(schema, html)
         
-        # Filter to valid transaction records
-        valid_records = [r for r in records if r.fields.get("description") and r.fields.get("amount")]
+        # Dated records should have valid ISO date format
+        dated_records = [r for r in records if not r.unresolved]
         
-        # Find records with ISO dates in context (not unresolved)
-        dated_records = [r for r in valid_records if not r.unresolved]
-        
-        # All dated records should have valid ISO date format
         for r in dated_records:
             date_val = r.context.get("date_header", "")
-            # Should be YYYY-MM-DD format
-            assert len(date_val) == 10 and date_val[4] == '-' and date_val[7] == '-'
+            # YYYY-MM-DD format: 10 chars, dashes at positions 4 and 7
+            assert len(date_val) == 10 and date_val[4] == '-' and date_val[7] == '-', \
+                f"Date '{date_val}' is not ISO format"
 
     def test_unresolved_header_flags_record(self, schema, html):
         """A record with no resolvable preceding anchor → unresolved=True."""
         records = extract(schema, html)
         
-        # Filter to valid transaction records
-        valid_records = [r for r in records if r.fields.get("description") and r.fields.get("amount")]
-        
-        # Some records should be unresolved (before first h2 date header)
-        unresolved_records = [r for r in valid_records if r.unresolved]
-        assert len(unresolved_records) >= 1, "Should have at least 1 unresolved record"
+        # Exactly 3 records before first h2 (Available section) should be unresolved
+        unresolved_records = [r for r in records if r.unresolved]
+        assert len(unresolved_records) == 3, f"Expected 3 unresolved records, got {len(unresolved_records)}"
         
         for r in unresolved_records:
-            assert "date_header" not in r.context
-            assert r.fields["description"]  # Has description even if unresolved
+            assert "date_header" not in r.context, "Unresolved records should have no date_header"
+            assert r.fields["description"], "Unresolved records should still have description"
+            assert r.fields["amount"], "Unresolved records should still have amount"
 
     def test_extract_is_pure(self, schema, html):
         """Calling extract twice on same inputs yields identical records."""
