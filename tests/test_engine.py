@@ -88,34 +88,36 @@ class TestEngine:
         """Each record's context["date_header"] matches the header it sat under."""
         records = extract(schema, html)
         
-        # Fixture has 6 transaction records
+        # Fixture has 6 transaction records (1 orphan + 5 with context)
         assert len(records) == 6
         
-        # First two records under "Yesterday" (reference_date 2026-04-10 - 1 = 2026-04-09)
-        assert records[0].context["date_header"] == "2026-04-09"
-        assert records[0].fields["description"] == "Starbucks Coffee"
+        # Record 0: orphan (no preceding h2) - tested separately in test_unresolved_header_flags_record
         
+        # Records 1-2 under "Yesterday" (reference_date 2026-04-10 - 1 = 2026-04-09)
         assert records[1].context["date_header"] == "2026-04-09"
-        assert records[1].fields["description"] == "Grocery Store"
+        assert records[1].fields["description"] == "Starbucks Coffee"
         
-        # Next two under "Thursday, April 9th" (absolute date 2026-04-09)
         assert records[2].context["date_header"] == "2026-04-09"
-        assert records[2].fields["description"] == "Gas Station"
+        assert records[2].fields["description"] == "Grocery Store"
         
+        # Records 3-4 under "Thursday, April 9th" (absolute date 2026-04-09)
         assert records[3].context["date_header"] == "2026-04-09"
-        assert records[3].fields["description"] == "Direct Deposit"
+        assert records[3].fields["description"] == "Gas Station"
         
-        # Next under "Tuesday, March 31st" (absolute date 2026-03-31)
-        assert records[4].context["date_header"] == "2026-03-31"
-        assert records[4].fields["description"] == "Electric Bill"
+        assert records[4].context["date_header"] == "2026-04-09"
+        assert records[4].fields["description"] == "Direct Deposit"
+        
+        # Record 5 under "Tuesday, March 31st" (absolute date 2026-03-31)
+        assert records[5].context["date_header"] == "2026-03-31"
+        assert records[5].fields["description"] == "Electric Bill"
 
     def test_relative_date_resolves_against_reference(self, schema, html):
         """"Yesterday" resolves to reference_date − 1, ISO format."""
         records = extract(schema, html)
         
         # "Yesterday" with reference_date 2026-04-10 should resolve to 2026-04-09
-        # First two records are under "Yesterday"
-        for i in [0, 1]:
+        # Records at positions 1 and 2 are under "Yesterday"
+        for i in [1, 2]:
             assert records[i].context["date_header"] == "2026-04-09"
             assert not records[i].unresolved
 
@@ -123,26 +125,26 @@ class TestEngine:
         """"Thursday, April 9th" → "2026-04-09"."""
         records = extract(schema, html)
         
-        # Records 2 and 3 are under "Thursday, April 9th"
-        for i in [2, 3]:
+        # Records 3 and 4 are under "Thursday, April 9th"
+        for i in [3, 4]:
             assert records[i].context["date_header"] == "2026-04-09"
             assert not records[i].unresolved
         
-        # Record 4 is under "Tuesday, March 31st"
-        assert records[4].context["date_header"] == "2026-03-31"
-        assert not records[4].unresolved
+        # Record 5 is under "Tuesday, March 31st"
+        assert records[5].context["date_header"] == "2026-03-31"
+        assert not records[5].unresolved
 
     def test_unresolved_header_flags_record(self, schema, html):
         """A record with no resolvable preceding anchor → unresolved=True."""
         records = extract(schema, html)
         
-        # Last record (orphan-record) has no preceding h2 header
-        last_record = records[-1]
+        # First record (orphan-record) has no preceding h2 header
+        first_record = records[0]
         
-        assert last_record.unresolved is True
+        assert first_record.unresolved is True
         # Context should not have the inherits role (date_header)
-        assert "date_header" not in last_record.context or last_record.unresolved
-        assert last_record.fields["description"] == "Mystery Charge"
+        assert "date_header" not in first_record.context
+        assert first_record.fields["description"] == "Mystery Charge"
 
     def test_extract_is_pure(self, schema, html):
         """Calling extract twice on same inputs yields identical records."""

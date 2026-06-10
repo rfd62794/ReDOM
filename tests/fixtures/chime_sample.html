@@ -5,6 +5,12 @@
 </head>
 <body>
     <div class="transaction-list">
+        <!-- Record with no preceding header for unresolved test -->
+        <div class="transaction orphan-record">
+            <span class="desc">Mystery Charge</span>
+            <span class="amount">-$12.99</span>
+        </div>
+        
         <h2>Yesterday</h2>
         <div class="transaction">
             <span class="desc">Starbucks Coffee</span>
@@ -29,12 +35,6 @@
         <div class="transaction">
             <span class="desc">Electric Bill</span>
             <span class="amount">-$89.50</span>
-        </div>
-        
-        <!-- Record with no preceding header for unresolved test -->
-        <div class="transaction orphan-record">
-            <span class="desc">Mystery Charge</span>
-            <span class="amount">-$12.99</span>
         </div>
     </div>
 </body>
