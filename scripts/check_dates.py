@@ -4,7 +4,7 @@
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-html = Path('tests/fixtures/chime_real.html').read_text(encoding='utf-8')
+html = Path('tests/fixtures/sample_statement.html').read_text(encoding='utf-8')
 soup = BeautifulSoup(html, 'html.parser')
 
 print("=== DATE HEADERS IN FIXTURE ===")
@@ -15,5 +15,5 @@ for h2 in h2s:
 print()
 print("=== REFERENCE DATE CHECK ===")
 print(f"Synthetic fixture reference date: March 15, 2026")
-print(f"Schema reference_date: 2026-06-09")
-print(f"If 'Yesterday' appears, should resolve to: 2026-06-08 (reference_date - 1)")
+print(f"Schema reference_date: 2026-03-15")
+print(f"If 'Yesterday' appears, should resolve to: 2026-03-14 (reference_date - 1)")

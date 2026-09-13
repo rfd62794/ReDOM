@@ -2,13 +2,13 @@
 """Check what dates records actually have."""
 
 import sys
-sys.path.insert(0, 'c:\\Github\\ReDOM')
 
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from redom import load_schema, extract
 
 schema = load_schema('schemas/chime_transactions.yaml')
-html = Path('tests/fixtures/chime_real.html').read_text(encoding='utf-8')
+html = Path('tests/fixtures/sample_statement.html').read_text(encoding='utf-8')
 records = extract(schema, html)
 
 print("=== RECORD DATES ===")

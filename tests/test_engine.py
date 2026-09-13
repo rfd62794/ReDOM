@@ -8,7 +8,7 @@ from redom import load_schema, SchemaError, extract, Record, ExtractionSchema
 
 # Fixtures paths
 SCHEMA_PATH = Path(__file__).parent.parent / "schemas" / "chime_transactions.yaml"
-HTML_PATH = Path(__file__).parent / "fixtures" / "chime_real.html"
+HTML_PATH = Path(__file__).parent / "fixtures" / "sample_statement.html"
 
 
 # Load once for all tests
@@ -38,7 +38,7 @@ class TestSchemaLoading:
         assert schema.record_selector == "a.group.flex.flex-col"
         assert schema.inherits == "date_header"
         assert schema.on_unresolved == "flag"
-        assert schema.reference_date == "2026-06-10"
+        assert schema.reference_date == "2026-03-15"
 
     def test_schema_rejects_unknown_kind(self):
         """Unknown kind raises SchemaError."""
@@ -115,7 +115,7 @@ class TestSelectorParsing:
         assert _element_matches_selector(also_wrong, "a.group.flex.flex-col") is False
 
 
-# Test 5-8: Engine behavior with real fixture
+# Test 5-9: Engine behavior with synthetic fixture
 class TestEngine:
     def test_extract_reattaches_date_to_records(self, schema, html):
         """Each record's context["date_header"] matches the header it sat under."""
@@ -136,7 +136,7 @@ class TestEngine:
             assert amt.replace('.', '').replace('-', '').replace('+', '').isdigit(), \
                 f"Amount '{amt}' is not a dollar value"
         
-        # Records with date context have valid reattachment (3 from Yesterday + 3 from June 8th)
+        # Records with date context have valid reattachment (3 from Yesterday + 3 from Friday, March 13th)
         dated_records = [r for r in records if not r.unresolved]
         assert len(dated_records) == 6, f"Expected 6 dated records, got {len(dated_records)}"
         for r in dated_records:
@@ -147,8 +147,8 @@ class TestEngine:
         """"Yesterday" resolves to reference_date − 1, ISO format."""
         records = extract(schema, html)
         
-        # Find records with Yesterday-derived date (2026-06-09 from ref_date 2026-06-10)
-        yesterday_records = [r for r in records if r.context.get("date_header") == "2026-06-09"]
+        # Find records with Yesterday-derived date (2026-03-14 from ref_date 2026-03-15)
+        yesterday_records = [r for r in records if r.context.get("date_header") == "2026-03-14"]
         
         # Should have exactly 3 records under Yesterday (and 3 under Friday, March 13th)
         assert len(yesterday_records) == 3, f"Expected 3 Yesterday records, got {len(yesterday_records)}"

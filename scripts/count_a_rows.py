@@ -4,7 +4,7 @@
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-html = Path('tests/fixtures/chime_real.html').read_text(encoding='utf-8')
+html = Path('tests/fixtures/sample_statement.html').read_text(encoding='utf-8')
 soup = BeautifulSoup(html, 'html.parser')
 
 # Find 'a' tags with the transaction link classes

@@ -99,7 +99,7 @@ When `on_unresolved: flag` and a record appears without a preceding anchor match
 
 This is the stop condition: fail loud rather than emit bad data.
 
-## Worked Example: Chime Transactions
+## Worked Example: Bank Transactions (synthetic)
 
 ```yaml
 source: chime_transactions
@@ -128,7 +128,7 @@ on_unresolved: flag
   <span class="amount">-$5.67</span>
 </div>
 <div class="transaction">
-  <span class="desc">Grocery</span>
+  <span class="desc">Corner Market</span>
   <span class="amount">-$42.13</span>
 </div>
 <h2>Thursday, April 9th</h2>
@@ -144,7 +144,7 @@ on_unresolved: flag
     unresolved=False
   ),
   Record(
-    fields={"description": "Grocery", "amount": "-42.13"},
+    fields={"description": "Corner Market", "amount": "-42.13"},
     context={"date_header": "2026-04-09"},
     unresolved=False
   ),

@@ -9,7 +9,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 import re
 
-html = Path('tests/fixtures/chime_real.html').read_text(encoding='utf-8')
+html = Path('tests/fixtures/sample_statement.html').read_text(encoding='utf-8')
 soup = BeautifulSoup(html, 'html.parser')
 
 print("=== FINDING PER-TRANSACTION IDENTIFIERS ===")

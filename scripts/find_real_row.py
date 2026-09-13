@@ -4,7 +4,7 @@
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-html = Path('tests/fixtures/chime_real.html').read_text(encoding='utf-8')
+html = Path('tests/fixtures/sample_statement.html').read_text(encoding='utf-8')
 soup = BeautifulSoup(html, 'html.parser')
 
 print("=== FINDING TRANSACTION ROW PARENTS ===")

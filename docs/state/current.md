@@ -7,8 +7,8 @@
 | Component | Status | Notes |
 |-----------|--------|-------|
 | **ReDOM Engine** | ✅ **CERTIFIED 8/0/0** | Mechanism proven: document-order walk, reattachment, fail-loud path, purity contract |
-| **Chime Schema** | ✅ **CERTIFIED** | Real selectors from structure report (`.flex.flex-row.gap-4`, Tailwind classes) validated against real Chime DOM |
-| **Chime Fixture** | ✅ **REAL** | Sanitized from `samples/Chime/Chime _ Accounts_Spending.html` (raw capture, protected by .gitignore) |
+| **Chime Schema** | ✅ **CERTIFIED** | Selectors from structure report (`a.group.flex.flex-col`, Tailwind classes) |
+| **Fixture** | ✅ **SYNTHETIC** | `tests/fixtures/sample_statement.html` — fabricated merchants/dates/amounts; same DOM structure and classes as the real page |
 | Purity verified | ✅ | Year injected from `reference_date` (line 58), no `datetime.now()`, no I/O |
 | Test floor | ✅ **9/0/0** | 9 tests passing (8 original + 1 tag+class selector test), 0 failed, 0 skipped |
 | UV toolchain | ✅ | `.python-version` 3.12.10, `uv.lock` committed, reproducible floor |
@@ -18,13 +18,13 @@
 The original directive (§4) required: "One real Chime page saved, sanitized, committed as `tests/fixtures/chime_sample.html`."
 
 **What was delivered:** 
-- Real page structure analyzed locally, sanitized via `scripts/sanitize_chime.py`
+- Real page structure analyzed locally via `scripts/sanitize_chime.py` (raw capture never committed); committed fixture replaced with a fully synthetic equivalent
 - Structure report revealed Tailwind utility classes (not semantic selectors)
 - Schema updated with real selectors: `a.group.flex.flex-col` (transaction rows), `.text-label` (amounts)
-- **reference_date corrected to 2026-06-10** to match capture date (Yesterday → June 9)
+- **reference_date 2026-03-15** (synthetic; Yesterday → March 14)
 - **Engine fix:** tag+class selector parsing (`a.group.flex.flex-col`) with dedicated test
 - **9 real transactions** extracted, **3 orphan records** flagged unresolved, **6 with date reattachment**
-- Engine certified against real hostile UI — not synthetic data
+- Engine certified against realistic Tailwind DOM structure (synthetic values)
 
 **Impact:** The reattachment primitive works on actual Chime DOM. The schema selectors are validated. Phase 1 is complete.
 
@@ -56,7 +56,7 @@ Target: **9 passing, 0 failing, 0 skipped**
 
 ### Schema & Fixture
 - `schemas/chime_transactions.yaml` — First real extraction schema
-- `tests/fixtures/chime_sample.html` — Static HTML fixture (deterministic, no network)
+- `tests/fixtures/sample_statement.html` — Synthetic static HTML fixture (deterministic, no network)
 
 ### Documentation
 - `docs/SCHEMA_SPEC.md` — Human-readable format specification

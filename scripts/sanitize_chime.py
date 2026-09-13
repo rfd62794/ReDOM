@@ -2,7 +2,10 @@
 """Sanitize real Chime HTML fixture for testing.
 
 Reads: samples/Chime/Chime _ Accounts_Spending.html (gitignored, never committed)
-Writes: tests/fixtures/chime_real.html (sanitized, tracked)
+Writes: samples/sanitized_statement.html (sanitized, gitignored)
+
+NOTE: The committed test fixture (tests/fixtures/sample_statement.html) is fully
+synthetic. Never copy real-capture output into tests/ or any tracked path.
 
 Usage:
     uv run python scripts/sanitize_chime.py --report    # Structure report only
@@ -18,7 +21,7 @@ from bs4 import BeautifulSoup
 
 # Paths
 RAW_FILE = Path("samples/Chime/Chime _ Accounts_Spending.html")
-SANITIZED_FILE = Path("tests/fixtures/chime_real.html")
+SANITIZED_FILE = Path("samples/sanitized_statement.html")
 
 
 def analyze_structure(soup: BeautifulSoup) -> dict:
